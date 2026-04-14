@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "104173996500",
+    "project_id": "questionnaire-app-350a1",
+    "storage_bucket": "questionnaire-app-350a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104173996500:android:345a2e98a278f67d18ae41",
+        "android_client_info": {
+          "package_name": "com.example.questionnaire_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH18RZkHkZ6XJXdYZ1nGFGkGkugWHQI9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
