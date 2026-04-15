@@ -64,6 +64,7 @@ class QuestionnaireController extends GetxController {
         dateTime: DateTime.now(),
         latitude: position.latitude,
         longitude: position.longitude,
+        answers: Map<String, String>.from(selectedAnswers),
       );
       await _databaseService.insertSubmission(submission);
       alreadySubmitted.value = true;

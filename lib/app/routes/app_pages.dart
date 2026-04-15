@@ -5,6 +5,7 @@ import 'package:questionnaire_app/features/auth/views/login_view.dart';
 import 'package:questionnaire_app/features/auth/views/register_view.dart';
 import 'package:questionnaire_app/features/home/bindings/home_binding.dart';
 import 'package:questionnaire_app/features/home/views/home_view.dart';
+import 'package:questionnaire_app/features/home/views/submission_details_view.dart';
 import 'package:questionnaire_app/features/profile/bindings/profile_binding.dart';
 import 'package:questionnaire_app/features/profile/views/profile_view.dart';
 import 'package:questionnaire_app/features/questionnaire/bindings/questionnaire_binding.dart';
@@ -38,6 +39,10 @@ class AppPages {
       name: AppRoutes.questionnaire,
       page: QuestionnaireView.new,
       binding: QuestionnaireBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.submissionDetails,
+      page: SubmissionDetailsView.new,
     ),
     GetPage(
       name: AppRoutes.profile,

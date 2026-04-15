@@ -30,6 +30,33 @@ class HomeController extends GetxController {
         ?.then((_) => loadSubmissions());
   }
 
+  void openSubmittedQuestionnaire(QuestionnaireModel questionnaire) {
+    final submission = submissions.firstWhereOrNull(
+      (item) => item.questionnaireId == questionnaire.id,
+    );
+    if (submission == null) {
+      Get.snackbar(
+        'Submission Not Found',
+        'Could not find submitted answers for this questionnaire.',
+      );
+      return;
+    }
+    openSubmissionReview(questionnaire: questionnaire, submission: submission);
+  }
+
+  void openSubmissionReview({
+    required QuestionnaireModel questionnaire,
+    required SubmissionModel submission,
+  }) {
+    Get.toNamed<dynamic>(
+      AppRoutes.submissionDetails,
+      arguments: {
+        'questionnaire': questionnaire,
+        'submission': submission,
+      },
+    );
+  }
+
   void changeTab(int index) {
     selectedTab.value = index;
     if (index != 0) {

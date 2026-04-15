@@ -21,7 +21,7 @@ class DatabaseService extends GetxService {
     final path = join(dbPath, 'questionnaire_app.db');
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE $_usersTable(
@@ -45,7 +45,8 @@ class DatabaseService extends GetxService {
             questionnaireId TEXT NOT NULL,
             dateTime TEXT NOT NULL,
             latitude REAL NOT NULL,
-            longitude REAL NOT NULL
+            longitude REAL NOT NULL,
+            answersJson TEXT NOT NULL DEFAULT '{}'
           )
         ''');
         await db.execute(
@@ -83,6 +84,17 @@ class DatabaseService extends GetxService {
           await db.execute(
             'CREATE UNIQUE INDEX IF NOT EXISTS $_submissionsUniqueIndex ON $_submissionsTable(userId, questionnaireId)',
           );
+        }
+        if (oldVersion < 3) {
+          final columns =
+              (await db.rawQuery('PRAGMA table_info($_submissionsTable)'))
+                  .map((e) => (e['name'] as String?) ?? '')
+                  .toSet();
+          if (!columns.contains('answersJson')) {
+            await db.execute(
+              'ALTER TABLE $_submissionsTable ADD COLUMN answersJson TEXT NOT NULL DEFAULT "{}"',
+            );
+          }
         }
       },
     );

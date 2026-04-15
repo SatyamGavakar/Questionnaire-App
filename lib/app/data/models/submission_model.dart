@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class SubmissionModel {
   SubmissionModel({
     this.id,
@@ -6,6 +8,7 @@ class SubmissionModel {
     required this.dateTime,
     required this.latitude,
     required this.longitude,
+    required this.answers,
   });
 
   final int? id;
@@ -14,6 +17,7 @@ class SubmissionModel {
   final DateTime dateTime;
   final double latitude;
   final double longitude;
+  final Map<String, String> answers;
 
   factory SubmissionModel.fromMap(Map<String, dynamic> map) {
     return SubmissionModel(
@@ -23,6 +27,7 @@ class SubmissionModel {
       dateTime: DateTime.parse(map['dateTime'] as String),
       latitude: (map['latitude'] as num).toDouble(),
       longitude: (map['longitude'] as num).toDouble(),
+      answers: _parseAnswers(map['answersJson']),
     );
   }
 
@@ -33,5 +38,19 @@ class SubmissionModel {
         'dateTime': dateTime.toIso8601String(),
         'latitude': latitude,
         'longitude': longitude,
+        'answersJson': jsonEncode(answers),
       };
+
+  static Map<String, String> _parseAnswers(dynamic rawValue) {
+    if (rawValue is! String || rawValue.isEmpty) {
+      return <String, String>{};
+    }
+    final decoded = jsonDecode(rawValue);
+    if (decoded is! Map<String, dynamic>) {
+      return <String, String>{};
+    }
+    return decoded.map(
+      (key, value) => MapEntry(key, value?.toString() ?? ''),
+    );
+  }
 }

@@ -113,7 +113,7 @@ class _DashboardTab extends StatelessWidget {
                 model: item,
                 isSubmitted: controller.submittedQuestionnaireIds.contains(item.id),
                 onTap: controller.submittedQuestionnaireIds.contains(item.id)
-                    ? null
+                    ? () => controller.openSubmittedQuestionnaire(item)
                     : () => controller.openQuestionnaire(item),
               ),
             ),
@@ -160,6 +160,12 @@ class _HistoryTab extends StatelessWidget {
                 .firstWhereOrNull((q) => q.id == item.questionnaireId);
             return Card(
               child: ListTile(
+                onTap: questionnaire == null
+                    ? null
+                    : () => controller.openSubmissionReview(
+                          questionnaire: questionnaire,
+                          submission: item,
+                        ),
                 leading: CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   child: const Icon(Icons.assignment_turned_in_outlined),
@@ -173,6 +179,9 @@ class _HistoryTab extends StatelessWidget {
                   '${DateFormat.yMMMd().add_jm().format(item.dateTime)}\n'
                   'Lat ${item.latitude.toStringAsFixed(5)}, Lng ${item.longitude.toStringAsFixed(5)}',
                 ),
+                trailing: questionnaire == null
+                    ? null
+                    : const Icon(Icons.chevron_right_rounded),
               ),
             );
           },
