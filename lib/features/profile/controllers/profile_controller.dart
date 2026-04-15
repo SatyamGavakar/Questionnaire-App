@@ -18,7 +18,8 @@ class ProfileController extends GetxController {
 
   Future<void> loadSubmissions() async {
     isLoading.value = true;
-    submissions.assignAll(await _databaseService.fetchSubmissions());
+    final userId = _authService.currentUser.value?.id;
+    submissions.assignAll(await _databaseService.fetchSubmissions(userId: userId));
     isLoading.value = false;
   }
 

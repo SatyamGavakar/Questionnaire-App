@@ -1,23 +1,23 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/database_service.dart';
 import '../models/user_model.dart';
 
 class AuthService extends GetxService {
-  static const _userKey = 'current_user';
+  static const _userIdKey = 'current_user_id';
   static const _sessionKey = 'is_logged_in';
-  static const _passwordKey = 'dummy_password';
 
   final Rxn<UserModel> currentUser = Rxn<UserModel>();
+  final DatabaseService _databaseService = Get.find<DatabaseService>();
 
   Future<void> loadSession() async {
     final prefs = await SharedPreferences.getInstance();
     final loggedIn = prefs.getBool(_sessionKey) ?? false;
     if (!loggedIn) return;
-    final userJson = prefs.getString(_userKey);
-    if (userJson != null) {
-      currentUser.value = UserModel.fromJson(userJson);
-    }
+    final userId = prefs.getString(_userIdKey);
+    if (userId == null || userId.isEmpty) return;
+    currentUser.value = await _databaseService.getUserById(userId);
   }
 
   Future<bool> login({
@@ -25,15 +25,18 @@ class AuthService extends GetxService {
     required String password,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_userKey);
-    final savedPassword = prefs.getString(_passwordKey);
-    if (saved == null) return false;
-    final user = UserModel.fromJson(saved);
-    if (user.phone != phone || savedPassword != password) {
+    final isValid = await _databaseService.validateUserCredentials(
+      phoneOrEmail: phone,
+      password: password,
+    );
+    if (!isValid) {
       return false;
     }
+    final user = await _databaseService.findUserByPhoneOrEmail(phone);
+    if (user == null) return false;
     currentUser.value = user;
     await prefs.setBool(_sessionKey, true);
+    await prefs.setString(_userIdKey, user.id);
     return true;
   }
 
@@ -44,16 +47,20 @@ class AuthService extends GetxService {
     required String password,
   }) async {
     if (password.length < 6) return false;
-    final prefs = await SharedPreferences.getInstance();
+    final exists = await _databaseService.userExistsByPhoneOrEmail(phone, email);
+    if (exists) return false;
+
     final user = UserModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
       phone: phone,
       email: email,
     );
-    await prefs.setString(_userKey, user.toJson());
-    await prefs.setString(_passwordKey, password);
+    await _databaseService.insertUser(user: user, password: password);
+
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sessionKey, false);
+    await prefs.remove(_userIdKey);
     currentUser.value = null;
     return true;
   }
@@ -61,6 +68,7 @@ class AuthService extends GetxService {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sessionKey, false);
+    await prefs.remove(_userIdKey);
     currentUser.value = null;
   }
 

@@ -111,7 +111,10 @@ class _DashboardTab extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: _QuestionnaireCard(
                 model: item,
-                onTap: () => controller.openQuestionnaire(item),
+                isSubmitted: controller.submittedQuestionnaireIds.contains(item.id),
+                onTap: controller.submittedQuestionnaireIds.contains(item.id)
+                    ? null
+                    : () => controller.openQuestionnaire(item),
               ),
             ),
           ),
@@ -153,13 +156,19 @@ class _HistoryTab extends StatelessWidget {
           separatorBuilder: (context, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final item = controller.submissions[index];
+            final questionnaire = controller.questionnaires
+                .firstWhereOrNull((q) => q.id == item.questionnaireId);
             return Card(
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   child: const Icon(Icons.assignment_turned_in_outlined),
                 ),
-                title: Text('Questionnaire: ${item.questionnaireId.toUpperCase()}'),
+                title: Text(
+                  questionnaire == null
+                      ? 'Questionnaire: ${item.questionnaireId.toUpperCase()}'
+                      : questionnaire.title,
+                ),
                 subtitle: Text(
                   '${DateFormat.yMMMd().add_jm().format(item.dateTime)}\n'
                   'Lat ${item.latitude.toStringAsFixed(5)}, Lng ${item.longitude.toStringAsFixed(5)}',
@@ -213,6 +222,11 @@ class _ProfileTab extends StatelessWidget {
                           controller.userPhone,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        const SizedBox(height: 3),
+                        Text(
+                          controller.userEmail,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ],
                     ),
                   ),
@@ -246,10 +260,12 @@ class _QuestionnaireCard extends StatelessWidget {
   const _QuestionnaireCard({
     required this.model,
     required this.onTap,
+    required this.isSubmitted,
   });
 
   final QuestionnaireModel model;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool isSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +294,26 @@ class _QuestionnaireCard extends StatelessWidget {
                           ),
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded),
+                  if (isSubmitted)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'Submitted',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onTertiaryContainer,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    )
+                  else
+                    const Icon(Icons.chevron_right_rounded),
                 ],
               ),
               const SizedBox(height: 8),

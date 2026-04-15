@@ -1,6 +1,7 @@
 class SubmissionModel {
   SubmissionModel({
     this.id,
+    required this.userId,
     required this.questionnaireId,
     required this.dateTime,
     required this.latitude,
@@ -8,6 +9,7 @@ class SubmissionModel {
   });
 
   final int? id;
+  final String userId;
   final String questionnaireId;
   final DateTime dateTime;
   final double latitude;
@@ -16,6 +18,7 @@ class SubmissionModel {
   factory SubmissionModel.fromMap(Map<String, dynamic> map) {
     return SubmissionModel(
       id: map['id'] as int?,
+      userId: (map['userId'] ?? '') as String,
       questionnaireId: map['questionnaireId'] as String,
       dateTime: DateTime.parse(map['dateTime'] as String),
       latitude: (map['latitude'] as num).toDouble(),
@@ -25,6 +28,7 @@ class SubmissionModel {
 
   Map<String, dynamic> toMap() => {
         'id': id,
+        'userId': userId,
         'questionnaireId': questionnaireId,
         'dateTime': dateTime.toIso8601String(),
         'latitude': latitude,

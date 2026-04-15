@@ -13,6 +13,28 @@ class QuestionnaireView extends GetView<QuestionnaireController> {
       body: SafeArea(
         child: Column(
           children: [
+            Obx(
+              () => controller.alreadySubmitted.value
+                  ? Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        'You already submitted this questionnaire.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onTertiaryContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),
@@ -37,8 +59,12 @@ class QuestionnaireView extends GetView<QuestionnaireController> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(12),
-                                  onTap: () =>
-                                      controller.selectAnswer(question.id, option),
+                                  onTap: controller.alreadySubmitted.value
+                                      ? null
+                                      : () => controller.selectAnswer(
+                                            question.id,
+                                            option,
+                                          ),
                                   child: Container(
                                     width: double.infinity,
                                     padding: const EdgeInsets.symmetric(
@@ -95,14 +121,21 @@ class QuestionnaireView extends GetView<QuestionnaireController> {
                 width: double.infinity,
                 child: Obx(
                   () => FilledButton(
-                    onPressed: controller.isSubmitting.value ? null : controller.submit,
+                    onPressed: controller.isSubmitting.value ||
+                            controller.alreadySubmitted.value
+                        ? null
+                        : controller.submit,
                     child: controller.isSubmitting.value
                         ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Submit'),
+                        : Text(
+                            controller.alreadySubmitted.value
+                                ? 'Submitted'
+                                : 'Submit',
+                          ),
                   ),
                 ),
               ),

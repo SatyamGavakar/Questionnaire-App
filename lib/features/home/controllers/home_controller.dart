@@ -15,6 +15,7 @@ class HomeController extends GetxController {
   final selectedTab = 0.obs;
   final questionnaires = <QuestionnaireModel>[].obs;
   final submissions = <SubmissionModel>[].obs;
+  final submittedQuestionnaireIds = <String>{}.obs;
   final isLoadingSubmissions = false.obs;
 
   @override
@@ -38,7 +39,11 @@ class HomeController extends GetxController {
 
   Future<void> loadSubmissions() async {
     isLoadingSubmissions.value = true;
-    submissions.assignAll(await _databaseService.fetchSubmissions());
+    final userId = _authService.currentUser.value?.id;
+    submissions.assignAll(await _databaseService.fetchSubmissions(userId: userId));
+    submittedQuestionnaireIds.assignAll(
+      submissions.map((e) => e.questionnaireId).toSet(),
+    );
     isLoadingSubmissions.value = false;
   }
 
@@ -57,5 +62,11 @@ class HomeController extends GetxController {
     final user = _authService.currentUser.value;
     if (user == null) return '-';
     return user.phone.isNotEmpty ? user.phone : user.email;
+  }
+
+  String get userEmail {
+    final user = _authService.currentUser.value;
+    if (user == null || user.email.isEmpty) return '-';
+    return user.email;
   }
 }
