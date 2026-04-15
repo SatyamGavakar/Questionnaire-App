@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:questionnaire_app/app/data/models/questionnaire_model.dart';
 import 'package:questionnaire_app/app/data/models/submission_model.dart';
@@ -5,6 +6,7 @@ import 'package:questionnaire_app/app/data/services/auth_service.dart';
 import 'package:questionnaire_app/app/data/services/database_service.dart';
 import 'package:questionnaire_app/app/data/services/questionnaire_service.dart';
 import 'package:questionnaire_app/app/routes/app_routes.dart';
+import 'package:questionnaire_app/core/utils/app_snackbar.dart';
 
 class HomeController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -35,7 +37,7 @@ class HomeController extends GetxController {
       (item) => item.questionnaireId == questionnaire.id,
     );
     if (submission == null) {
-      Get.snackbar(
+      AppSnackbar.error(
         'Submission Not Found',
         'Could not find submitted answers for this questionnaire.',
       );
@@ -77,6 +79,30 @@ class HomeController extends GetxController {
   Future<void> logout() async {
     await _authService.logout();
     Get.offAllNamed(AppRoutes.login);
+  }
+
+  Future<void> confirmLogout() async {
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back<bool>(result: false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Get.back<bool>(result: true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    if (result == true) {
+      await logout();
+    }
   }
 
   String get userName {

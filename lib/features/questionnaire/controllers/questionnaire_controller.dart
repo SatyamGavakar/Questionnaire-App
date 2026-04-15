@@ -4,6 +4,7 @@ import 'package:questionnaire_app/app/data/models/submission_model.dart';
 import 'package:questionnaire_app/app/data/services/auth_service.dart';
 import 'package:questionnaire_app/app/data/services/database_service.dart';
 import 'package:questionnaire_app/app/data/services/location_service.dart';
+import 'package:questionnaire_app/core/utils/app_snackbar.dart';
 
 class QuestionnaireController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -41,17 +42,20 @@ class QuestionnaireController extends GetxController {
 
   Future<void> submit() async {
     if (!isComplete) {
-      Get.snackbar('Incomplete', 'Please answer all questions before submit.');
+      AppSnackbar.error('Incomplete', 'Please answer all questions before submit.');
       return;
     }
 
     final user = _authService.currentUser.value;
     if (user == null) {
-      Get.snackbar('Not Logged In', 'Please login again.');
+      AppSnackbar.error('Not Logged In', 'Please login again.');
       return;
     }
     if (alreadySubmitted.value) {
-      Get.snackbar('Already Submitted', 'You have already submitted this questionnaire.');
+      AppSnackbar.error(
+        'Already Submitted',
+        'You have already submitted this questionnaire.',
+      );
       return;
     }
 
@@ -69,17 +73,17 @@ class QuestionnaireController extends GetxController {
       await _databaseService.insertSubmission(submission);
       alreadySubmitted.value = true;
       Get.back<dynamic>();
-      Get.snackbar('Success', 'Submission saved locally.');
+      AppSnackbar.success('Success', 'Submission saved locally.');
     } catch (e) {
       final message = e.toString();
       if (message.contains('UNIQUE') || message.contains('unique')) {
-        Get.snackbar(
+        AppSnackbar.error(
           'Already Submitted',
           'You have already submitted this questionnaire.',
         );
         alreadySubmitted.value = true;
       } else {
-        Get.snackbar('Submission Failed', message);
+        AppSnackbar.error('Submission Failed', message);
       }
     } finally {
       isSubmitting.value = false;

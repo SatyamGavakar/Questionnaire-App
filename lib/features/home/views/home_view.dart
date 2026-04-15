@@ -16,7 +16,7 @@ class HomeView extends GetView<HomeController> {
         actions: [
           IconButton(
             tooltip: 'Logout',
-            onPressed: controller.logout,
+            onPressed: controller.confirmLogout,
             icon: const Icon(Icons.logout_rounded),
           ),
         ],

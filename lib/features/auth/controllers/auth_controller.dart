@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:questionnaire_app/app/data/services/auth_service.dart';
 import 'package:questionnaire_app/app/routes/app_routes.dart';
+import 'package:questionnaire_app/core/utils/app_snackbar.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -57,7 +58,10 @@ class AuthController extends GetxController {
     );
     isLoading.value = false;
     if (!success) {
-      Get.snackbar('Login Failed', 'Invalid credentials or no registered user.');
+      AppSnackbar.error(
+        'Login Failed',
+        'Invalid credentials or no registered user.',
+      );
       return;
     }
     Get.offAllNamed(AppRoutes.home);
@@ -67,7 +71,10 @@ class AuthController extends GetxController {
     if (!registerFormKey.currentState!.validate()) return;
     if (registerPasswordController.text.trim() !=
         registerConfirmPasswordController.text.trim()) {
-      Get.snackbar('Password Mismatch', 'Password and confirm password must match.');
+      AppSnackbar.error(
+        'Password Mismatch',
+        'Password and confirm password must match.',
+      );
       return;
     }
     isLoading.value = true;
@@ -79,7 +86,7 @@ class AuthController extends GetxController {
     );
     isLoading.value = false;
     if (!success) {
-      Get.snackbar('Registration Failed', 'Please review entered details.');
+      AppSnackbar.error('Registration Failed', 'Please review entered details.');
       return;
     }
     loginPhoneController.text = registerPhoneController.text.trim();
@@ -90,7 +97,10 @@ class AuthController extends GetxController {
     registerPasswordController.clear();
     registerConfirmPasswordController.clear();
     Get.back<dynamic>();
-    Get.snackbar('Registration Successful', 'Please login with your credentials.');
+    AppSnackbar.success(
+      'Registration Successful',
+      'Please login with your credentials.',
+    );
   }
 
   @override
