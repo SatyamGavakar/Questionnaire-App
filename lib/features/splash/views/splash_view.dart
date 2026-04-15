@@ -52,7 +52,7 @@ class SplashView extends GetView<SplashController> {
                     ],
                   ),
                   child: const Icon(
-                    Icons.auto_awesome_rounded,
+                    Icons.question_answer_rounded,
                     size: 54,
                     color: Colors.white,
                   ),
